@@ -1,0 +1,27 @@
+{
+  "name": "backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "npx tsx --watch src/server/index.ts",
+    "start": "npx tsx src/server/index.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.11",
+    "@prisma/client": "^6.19.2",
+    "bullmq": "^5.70.4",
+    "dotenv": "^17.3.1",
+    "hono": "^4.12.5",
+    "ioredis": "^5.10.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "prisma": "^6.19.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5"
+  },
+  "prisma": {
+    "schema": "../prisma/schema.prisma"
+  }
+}
