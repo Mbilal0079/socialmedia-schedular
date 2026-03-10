@@ -1,32 +1,45 @@
 import { NextAuthOptions } from "next-auth";
-import { PrismaAdapter } from "@auth/prisma-adapter";
 import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "@/lib/prisma";
 
-export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma) as NextAuthOptions["adapter"],
-  providers: [
+// Build providers list dynamically based on available env vars
+const providers: NextAuthOptions["providers"] = [];
+
+// Only add Google if credentials are configured
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  providers.push(
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    })
+  );
+}
+
+// Only add GitHub if credentials are configured
+if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
+  providers.push(
     GithubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-    }),
-    // Demo credentials provider for development
-    CredentialsProvider({
-      name: "Demo Account",
-      credentials: {
-        email: { label: "Email", type: "email", placeholder: "demo@example.com" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
+      clientId: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    })
+  );
+}
+
+// Demo credentials provider - always available
+providers.push(
+  CredentialsProvider({
+    name: "Demo Account",
+    credentials: {
+      email: { label: "Email", type: "email", placeholder: "demo@example.com" },
+      password: { label: "Password", type: "password" },
+    },
+    async authorize(credentials) {
+      try {
         if (!credentials?.email) return null;
 
-        // In development, auto-create/find user
+        // Auto-create or find user in database
         const user = await prisma.user.upsert({
           where: { email: credentials.email },
           update: {},
@@ -42,9 +55,19 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           image: user.image,
         };
-      },
-    }),
-  ],
+      } catch (error) {
+        console.error("Auth error:", error);
+        return null;
+      }
+    },
+  })
+);
+
+export const authOptions: NextAuthOptions = {
+  // NOTE: No PrismaAdapter - it conflicts with CredentialsProvider + JWT strategy.
+  // The adapter tries to create database sessions, but JWT strategy uses cookies.
+  // Without the adapter, we handle user creation manually in authorize().
+  providers,
   session: {
     strategy: "jwt",
   },
@@ -65,4 +88,5 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/auth/signin",
   },
+  secret: process.env.NEXTAUTH_SECRET,
 };
