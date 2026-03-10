@@ -57,7 +57,10 @@ providers.push(
         };
       } catch (error) {
         console.error("Auth error:", error);
-        return null;
+        // Throw with actual message so the user sees what's wrong
+        throw new Error(
+          error instanceof Error ? error.message : "Database connection failed"
+        );
       }
     },
   })

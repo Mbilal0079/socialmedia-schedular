@@ -45,7 +45,7 @@ export default function SignInPage() {
       });
 
       if (result?.error) {
-        setError("Invalid credentials");
+        setError(result.error === "CredentialsSignin" ? "Database connection failed. Check Vercel environment variables." : result.error);
       } else {
         router.push("/dashboard");
         router.refresh();
