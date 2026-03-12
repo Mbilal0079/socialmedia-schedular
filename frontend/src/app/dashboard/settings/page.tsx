@@ -135,16 +135,18 @@ export default function SettingsPage() {
           {saveError && (
             <p className="text-sm text-destructive">{saveError}</p>
           )}
+          {saveSuccess && (
+            <p className="text-sm text-green-600">Profile saved successfully!</p>
+          )}
 
-          <Button type="button" onClick={handleSaveProfile} disabled={isSaving}>
-            {isSaving ? (
-              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
-            ) : saveSuccess ? (
-              <><Check className="mr-2 h-4 w-4" /> Saved!</>
-            ) : (
-              "Save Changes"
-            )}
-          </Button>
+          <button
+            type="button"
+            onClick={handleSaveProfile}
+            disabled={isSaving}
+            className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+          >
+            {isSaving ? "Saving..." : "Save Changes"}
+          </button>
         </CardContent>
       </Card>
 
@@ -207,17 +209,14 @@ export default function SettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Button
-            variant="destructive"
+          <button
+            type="button"
             onClick={handleDeleteAccount}
             disabled={isDeleting}
+            className="inline-flex h-9 items-center justify-center rounded-lg bg-destructive px-4 text-sm font-medium text-white hover:bg-destructive/90 disabled:opacity-50"
           >
-            {isDeleting ? (
-              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...</>
-            ) : (
-              "Delete Account"
-            )}
-          </Button>
+            {isDeleting ? "Deleting..." : "Delete Account"}
+          </button>
         </CardContent>
       </Card>
     </div>
