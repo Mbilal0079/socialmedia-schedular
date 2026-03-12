@@ -41,8 +41,8 @@ export default function SettingsPage() {
         throw new Error(data.error || "Failed to update profile");
       }
 
-      // Update the session to reflect the new name
-      await updateSession({ name: name.trim() });
+      // Trigger session refresh so TopBar and other components get the updated name
+      await updateSession();
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (error) {
