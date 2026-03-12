@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // If scheduled, add to BullMQ queue
+    // If scheduled, add to BullMQ queue (if Redis is available)
     if (isScheduled) {
       const jobId = await schedulePost(
         {
@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
       // Create scheduled job record
       await prisma.scheduledJob.create({
         data: {
-          bullJobId: jobId,
+          bullJobId: jobId || `pending-${post.id}`,
           runAt: new Date(scheduledAt!),
           postId: post.id,
           userId: session.user.id,
