@@ -1,6 +1,7 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useState } from "react";
+import { useSession, signOut } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,10 +9,69 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Twitter, Facebook, Linkedin, Instagram, LinkIcon } from "lucide-react";
+import { Twitter, Facebook, Linkedin, Instagram, LinkIcon, Loader2, Check } from "lucide-react";
 
 export default function SettingsPage() {
-  const { data: session } = useSession();
+  const { data: session, update: updateSession } = useSession();
+  const [name, setName] = useState(session?.user?.name || "");
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleSaveProfile = async () => {
+    if (!name.trim()) {
+      setSaveError("Name cannot be empty");
+      return;
+    }
+
+    setIsSaving(true);
+    setSaveError("");
+    setSaveSuccess(false);
+
+    try {
+      const res = await fetch("/api/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim() }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to update profile");
+      }
+
+      // Update the session to reflect the new name
+      await updateSession({ name: name.trim() });
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "Failed to save");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete your account? This will permanently delete all your posts and data. This action cannot be undone."
+    );
+    if (!confirmed) return;
+
+    setIsDeleting(true);
+    try {
+      const res = await fetch("/api/profile", { method: "DELETE" });
+      if (res.ok) {
+        await signOut({ callbackUrl: "/" });
+      } else {
+        alert("Failed to delete account. Please try again.");
+      }
+    } catch {
+      alert("Failed to delete account. Please try again.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const socialPlatforms = [
     { name: "Twitter/X", icon: Twitter, connected: false, color: "text-sky-500" },
@@ -56,7 +116,8 @@ export default function SettingsPage() {
               <Label htmlFor="name">Display Name</Label>
               <Input
                 id="name"
-                defaultValue={session?.user?.name || ""}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 placeholder="Your name"
               />
             </div>
@@ -64,14 +125,26 @@ export default function SettingsPage() {
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
-                defaultValue={session?.user?.email || ""}
+                value={session?.user?.email || ""}
                 placeholder="your@email.com"
                 disabled
               />
             </div>
           </div>
 
-          <Button>Save Changes</Button>
+          {saveError && (
+            <p className="text-sm text-destructive">{saveError}</p>
+          )}
+
+          <Button onClick={handleSaveProfile} disabled={isSaving}>
+            {isSaving ? (
+              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
+            ) : saveSuccess ? (
+              <><Check className="mr-2 h-4 w-4" /> Saved!</>
+            ) : (
+              "Save Changes"
+            )}
+          </Button>
         </CardContent>
       </Card>
 
@@ -134,7 +207,17 @@ export default function SettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Button variant="destructive">Delete Account</Button>
+          <Button
+            variant="destructive"
+            onClick={handleDeleteAccount}
+            disabled={isDeleting}
+          >
+            {isDeleting ? (
+              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...</>
+            ) : (
+              "Delete Account"
+            )}
+          </Button>
         </CardContent>
       </Card>
     </div>
