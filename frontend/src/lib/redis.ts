@@ -6,12 +6,16 @@ const globalForRedis = globalThis as unknown as {
 
 function createRedisClient(): Redis | null {
   const url = process.env.REDIS_URL || "redis://localhost:6379";
-  // Only create client for direct redis connections, not REST APIs
   if (!url.startsWith("redis://") && !url.startsWith("rediss://")) {
     return null;
   }
   try {
-    return new Redis(url, {
+    const parsedUrl = new URL(url);
+    return new Redis({
+      host: parsedUrl.hostname,
+      port: parseInt(parsedUrl.port || "6379"),
+      password: parsedUrl.password || undefined,
+      tls: url.startsWith("rediss://") ? {} : undefined,
       maxRetriesPerRequest: null,
       lazyConnect: true,
     });

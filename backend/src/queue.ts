@@ -1,8 +1,13 @@
 import { Queue } from "bullmq";
 
+const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
+const parsedUrl = new URL(redisUrl);
+
 const connection = {
-  host: new URL(process.env.REDIS_URL || "redis://localhost:6379").hostname,
-  port: parseInt(new URL(process.env.REDIS_URL || "redis://localhost:6379").port || "6379"),
+  host: parsedUrl.hostname,
+  port: parseInt(parsedUrl.port || "6379"),
+  password: parsedUrl.password || undefined,
+  tls: redisUrl.startsWith("rediss://") ? {} : undefined,
 };
 
 export const publishQueue = new Queue("post-publish", {
