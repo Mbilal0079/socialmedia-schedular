@@ -1,11 +1,17 @@
+import "dotenv/config";
 import { Worker } from "bullmq";
 import { PrismaClient } from "@prisma/client";
 import type { PublishJobData } from "./queue";
 
 const prisma = new PrismaClient();
+
+const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
+const parsedUrl = new URL(redisUrl);
 const connection = {
-  host: new URL(process.env.REDIS_URL || "redis://localhost:6379").hostname,
-  port: parseInt(new URL(process.env.REDIS_URL || "redis://localhost:6379").port || "6379"),
+  host: parsedUrl.hostname,
+  port: parseInt(parsedUrl.port || "6379"),
+  password: parsedUrl.password || undefined,
+  tls: redisUrl.startsWith("rediss://") ? {} : undefined,
 };
 
 /**
@@ -15,7 +21,6 @@ const connection = {
 async function publishToTwitter(content: string, mediaUrls: string[]) {
   console.log(`[Twitter] Publishing: "${content.substring(0, 50)}..."`);
   // TODO: Integrate with Twitter API v2
-  // const tweet = await twitterClient.tweets.create({ text: content });
   return { success: true, platformPostId: `tw_${Date.now()}` };
 }
 
@@ -56,7 +61,6 @@ export const publishWorker = new Worker(
     const data = job.data as PublishJobData;
     console.log(`\nProcessing job ${job.id} for post ${data.postId}`);
 
-    // Update job status
     await prisma.scheduledJob.updateMany({
       where: { postId: data.postId },
       data: { status: "processing" },
@@ -69,7 +73,6 @@ export const publishWorker = new Worker(
       error?: string;
     }> = [];
 
-    // Publish to each platform
     for (const platform of data.platforms) {
       try {
         const publisher = platformPublishers[platform];
@@ -79,7 +82,6 @@ export const publishWorker = new Worker(
 
         const result = await publisher(data.content, data.mediaUrls);
 
-        // Log success
         await prisma.publishLog.create({
           data: {
             postId: data.postId,
@@ -99,7 +101,6 @@ export const publishWorker = new Worker(
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : "Unknown error";
 
-        // Log failure
         await prisma.publishLog.create({
           data: {
             postId: data.postId,
@@ -114,7 +115,6 @@ export const publishWorker = new Worker(
       }
     }
 
-    // Update post status
     const allSuccessful = results.every((r) => r.success);
     const anySuccessful = results.some((r) => r.success);
 
@@ -132,7 +132,6 @@ export const publishWorker = new Worker(
       },
     });
 
-    // Update scheduled job status
     await prisma.scheduledJob.updateMany({
       where: { postId: data.postId },
       data: { status: allSuccessful ? "completed" : "failed" },
