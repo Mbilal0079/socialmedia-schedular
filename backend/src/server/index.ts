@@ -154,7 +154,7 @@ app.get("/api/analytics/overview", async (c) => {
 // ============================================
 // START SERVER
 // ============================================
-const port = parseInt(process.env.HONO_PORT || "4000");
+const port = parseInt(process.env.PORT || process.env.HONO_PORT || "4000");
 
 console.log(`\nHono Backend Server starting on port ${port}`);
 console.log(`Queue Worker is active and listening for jobs`);
