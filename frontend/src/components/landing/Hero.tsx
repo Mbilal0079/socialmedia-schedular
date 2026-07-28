@@ -114,6 +114,7 @@ export default function Hero() {
           <div className="lp-beta-badge">
   🇵🇰 Built by a Pakistani developer · Free during beta · Join and shape the product
           </div>
+        </div>
         {/* Right: mockup */}
         <div className="lp-hero__right">
           <DashboardCard />
@@ -132,4 +133,4 @@ export default function Hero() {
       </div>
     </section>
   );
-}
+  }
