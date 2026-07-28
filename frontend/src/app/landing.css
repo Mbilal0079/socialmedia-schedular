@@ -231,7 +231,15 @@ ul { list-style: none; }
   box-shadow: 0 0 6px var(--green);
   animation: pulse-dot 2s ease-in-out infinite;
 }
-
+.lp-beta-badge {
+  font-size: 13px;
+  color: #64748B;
+  margin-top: 28px;
+  padding: 10px 16px;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.03);
+}
 /* Hero headline */
 .lp-hero__h1 {
   font-size: clamp(38px, 5.5vw, 72px);

@@ -101,9 +101,6 @@ export default function Hero() {
             <Link href="/register" className="lp-btn lp-btn--primary lp-btn--lg">
               Get Started Free →
             </Link>
-            <Link href="/login" className="lp-btn lp-btn--ghost lp-btn--lg">
-              <span className="lp-play">▶</span> Watch Demo
-            </Link>
           </div>
 
           <div className="lp-trust">
@@ -114,22 +111,9 @@ export default function Hero() {
             ))}
           </div>
 
-          {/* Social proof row */}
-          <div className="lp-social-proof">
-            <div className="lp-avatars">
-              {["#7C3AED","#3B82F6","#22C55E","#F59E0B","#EF4444"].map((c, i) => (
-                <div key={i} className="lp-avatars__item" style={{ background: c, zIndex: 5 - i }}>
-                  {["A","B","C","D","E"][i]}
-                </div>
-              ))}
-            </div>
-            <div>
-              <div className="lp-stars">★★★★★ <span style={{ color: "#F8FAFC", fontWeight: 700 }}>4.9</span></div>
-              <div style={{ fontSize: 12, color: "#64748B" }}>Trusted by 1,200+ creators and growing</div>
-            </div>
+          <div className="lp-beta-badge">
+  🇵🇰 Built by a Pakistani developer · Free during beta · Join and shape the product
           </div>
-        </div>
-
         {/* Right: mockup */}
         <div className="lp-hero__right">
           <DashboardCard />

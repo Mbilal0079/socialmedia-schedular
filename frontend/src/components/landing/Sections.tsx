@@ -252,6 +252,22 @@ export function Footer() {
             <a key={s} href="#">{s}</a>
           ))}
         </div>
+        <div className="lp-footer__bottom">
+  <div>
+    <span style={{ color: "#334155", fontSize: 13 }}>
+      © {new Date().getFullYear()} PostPilot. Built by{" "}
+      <a href="mailto:bilalasghar@email.com" style={{ color: "#7C3AED" }}>
+        Bilal Asghar
+      </a>{" "}
+      · Currently in beta
+    </span>
+  </div>
+  <div className="lp-footer__socials">
+    {["Twitter", "LinkedIn", "GitHub"].map((s) => (
+      <a key={s} href="#">{s}</a>
+    ))}
+  </div>
+</div>
       </div>
     </footer>
   );
