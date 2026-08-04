@@ -2,35 +2,102 @@
 
 import { useSession } from "next-auth/react";
 import { Bell, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 export function TopBar() {
   const { data: session } = useSession();
+  const name = session?.user?.name?.split(" ")[0] || "there";
+  const initials = session?.user?.name?.charAt(0)?.toUpperCase() || "U";
 
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b bg-background/95 px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex items-center gap-4">
-        <div className="hidden md:block">
-          <h2 className="text-lg font-semibold">
-            Welcome back, {session?.user?.name?.split(" ")[0] || "there"}!
-          </h2>
-        </div>
+    <header style={{
+      position: "sticky", top: 0, zIndex: 20,
+      height: 64,
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+      padding: "0 24px",
+      background: "rgba(5,8,22,0.85)",
+      backdropFilter: "blur(20px)",
+      borderBottom: "1px solid rgba(255,255,255,0.06)",
+      fontFamily: "'Inter',-apple-system,sans-serif",
+    }}>
+      {/* Left: greeting */}
+      <div>
+        <span style={{ fontSize: 15, fontWeight: 600, color: "#F1F5F9" }}>
+          Welcome back, <span style={{
+            background: "linear-gradient(135deg,#7C3AED,#A855F7)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+          }}>{name}</span>! 👋
+        </span>
       </div>
 
-      <div className="flex items-center gap-3">
-        <div className="relative hidden md:block">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
+      {/* Right: search + bell + avatar */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        {/* Search */}
+        <div style={{ position: "relative" }}>
+          <Search size={14} color="#475569" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)" }} />
+          <input
             placeholder="Search posts..."
-            className="w-64 pl-9"
+            style={{
+              paddingLeft: 36, paddingRight: 14, paddingTop: 8, paddingBottom: 8,
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: 9,
+              color: "#F1F5F9", fontSize: 13,
+              outline: "none", width: 220,
+              fontFamily: "inherit",
+              transition: "border-color 0.2s, background 0.2s",
+            }}
+            onFocus={e => {
+              (e.target as HTMLInputElement).style.borderColor = "rgba(124,58,237,0.5)";
+              (e.target as HTMLInputElement).style.background = "rgba(124,58,237,0.06)";
+            }}
+            onBlur={e => {
+              (e.target as HTMLInputElement).style.borderColor = "rgba(255,255,255,0.08)";
+              (e.target as HTMLInputElement).style.background = "rgba(255,255,255,0.05)";
+            }}
           />
         </div>
 
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
-          <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-destructive" />
-        </Button>
+        {/* Bell */}
+        <button style={{
+          width: 36, height: 36, borderRadius: 9,
+          background: "rgba(255,255,255,0.05)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          cursor: "pointer", position: "relative",
+          transition: "background 0.2s",
+        }}
+        onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.12)"}
+        onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.05)"}
+        >
+          <Bell size={16} color="#94A3B8" />
+          <span style={{
+            position: "absolute", top: 6, right: 6,
+            width: 7, height: 7, borderRadius: "50%",
+            background: "#EF4444",
+            boxShadow: "0 0 6px rgba(239,68,68,0.6)",
+          }} />
+        </button>
+
+        {/* Avatar */}
+        <div style={{
+          width: 36, height: 36, borderRadius: "50%",
+          background: "linear-gradient(135deg,#7C3AED,#A855F7)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 13, fontWeight: 800, color: "white",
+          boxShadow: "0 0 12px rgba(124,58,237,0.4)",
+          cursor: "pointer",
+          flexShrink: 0,
+        }}>
+          {session?.user?.image ? (
+            <img
+              src={session.user.image}
+              alt={name}
+              style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }}
+            />
+          ) : initials}
+        </div>
       </div>
     </header>
   );
