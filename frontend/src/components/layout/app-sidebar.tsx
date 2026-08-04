@@ -4,17 +4,23 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import {
-  LayoutDashboard, PenSquare, Calendar,
-  BarChart3, Settings, LogOut, Menu, X,
+  LayoutDashboard,
+  PenSquare,
+  Calendar,
+  BarChart3,
+  Settings,
+  LogOut,
+  Menu,
+  X,
 } from "lucide-react";
 import { useUIStore } from "@/store/ui-store";
 
 const NAV = [
-  { href: "/dashboard",            label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dashboard/posts",      label: "Posts",     icon: PenSquare       },
-  { href: "/dashboard/calendar",   label: "Calendar",  icon: Calendar        },
-  { href: "/dashboard/analytics",  label: "Analytics", icon: BarChart3       },
-  { href: "/dashboard/settings",   label: "Settings",  icon: Settings        },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard/posts", label: "Posts", icon: PenSquare },
+  { href: "/dashboard/calendar", label: "Calendar", icon: Calendar },
+  { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
 export function AppSidebar() {
@@ -23,98 +29,74 @@ export function AppSidebar() {
   const { sidebarOpen, toggleSidebar } = useUIStore();
   const initials = session?.user?.name?.charAt(0)?.toUpperCase() || "U";
 
+  const isActive = (href: string) => {
+    if (href === "/dashboard") {
+      return pathname === "/dashboard";
+    }
+    return pathname.startsWith(href);
+  };
+
   return (
     <>
-      {/* Mobile overlay */}
+      {/* Mobile Overlay */}
       {sidebarOpen && (
         <div
           onClick={toggleSidebar}
-          style={{
-            position: "fixed", inset: 0, zIndex: 40,
-            background: "rgba(0,0,0,0.6)",
-            backdropFilter: "blur(4px)",
-          }}
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
         />
       )}
 
       {/* Sidebar */}
-      <aside style={{
-        position: "fixed", left: 0, top: 0, zIndex: 50,
-        height: "100%", width: 240,
-        display: "flex", flexDirection: "column",
-        background: "#0B1023",
-        borderRight: "1px solid rgba(255,255,255,0.06)",
-        transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
-        transition: "transform 0.3s ease",
-        fontFamily: "'Inter',-apple-system,sans-serif",
-      }}
-      className="lg-sidebar"
+      <aside
+        className={`
+          fixed left-0 top-0 z-50 h-full w-60 flex flex-col
+          bg-[#0B1023] border-r border-white/5
+          transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+          lg:translate-x-0
+        `}
       >
-        <style>{`
-          @media(min-width:1024px){
-            .lg-sidebar{ transform: translateX(0) !important; }
-            .mobile-toggle{ display: none !important; }
-          }
-        `}</style>
-
         {/* Logo */}
-        <div style={{
-          height: 64, display: "flex", alignItems: "center",
-          justifyContent: "space-between", padding: "0 20px",
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
-        }}>
-          <Link href="/dashboard" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-            <div style={{
-              width: 32, height: 32, borderRadius: 8,
-              background: "linear-gradient(135deg,#7C3AED,#A855F7)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 15, boxShadow: "0 0 16px rgba(124,58,237,0.5)",
-            }}>⚡</div>
-            <span style={{ fontSize: 16, fontWeight: 800, color: "#F8FAFC", letterSpacing: "-0.02em" }}>
+        <div className="h-16 flex items-center justify-between px-5 border-b border-white/5">
+          <Link href="/dashboard" className="flex items-center gap-2.5 no-underline">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-purple-500 flex items-center justify-center text-[15px] shadow-lg shadow-violet-500/40">
+              ⚡
+            </div>
+            <span className="text-base font-extrabold text-slate-50 tracking-tight">
               PostPilot
             </span>
           </Link>
+
           <button
             onClick={toggleSidebar}
-            style={{ background: "none", border: "none", cursor: "pointer", color: "#64748B", padding: 4 }}
-            className="mobile-toggle"
+            className="lg:hidden p-1 text-slate-500 hover:text-slate-300"
           >
             <X size={18} />
           </button>
         </div>
 
-        {/* Nav */}
-        <nav style={{ flex: 1, padding: "16px 12px", display: "flex", flexDirection: "column", gap: 4 }}>
-          {NAV.map(item => {
-            const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
+        {/* Navigation */}
+        <nav className="flex-1 p-3 flex flex-col gap-1">
+          {NAV.map((item) => {
+            const active = isActive(item.href);
             const Icon = item.icon;
+
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={() => { if (sidebarOpen) toggleSidebar(); }}
-                style={{
-                  display: "flex", alignItems: "center", gap: 12,
-                  padding: "10px 12px", borderRadius: 10,
-                  textDecoration: "none", fontSize: 14, fontWeight: 500,
-                  transition: "all 0.2s ease",
-                  background: active ? "linear-gradient(135deg,rgba(124,58,237,0.25),rgba(168,85,247,0.15))" : "transparent",
-                  color: active ? "#C4B5FD" : "#64748B",
-                  border: active ? "1px solid rgba(124,58,237,0.3)" : "1px solid transparent",
-                  boxShadow: active ? "0 2px 8px rgba(124,58,237,0.15)" : "none",
+                onClick={() => {
+                  if (sidebarOpen) toggleSidebar();
                 }}
-                onMouseEnter={e => {
-                  if (!active) {
-                    (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.04)";
-                    (e.currentTarget as HTMLElement).style.color = "#94A3B8";
+                className={`
+                  flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
+                  transition-all duration-200 no-underline
+                  ${
+                    active
+                      ? "bg-gradient-to-r from-violet-600/25 to-purple-500/15 text-violet-300 border border-violet-500/30 shadow-md shadow-violet-500/10"
+                      : "text-slate-500 hover:bg-white/5 hover:text-slate-300 border border-transparent"
                   }
-                }}
-                onMouseLeave={e => {
-                  if (!active) {
-                    (e.currentTarget as HTMLElement).style.background = "transparent";
-                    (e.currentTarget as HTMLElement).style.color = "#64748B";
-                  }
-                }}
+                `}
               >
                 <Icon size={18} />
                 {item.label}
@@ -124,65 +106,45 @@ export function AppSidebar() {
         </nav>
 
         {/* Divider */}
-        <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "0 12px" }} />
+        <div className="h-px bg-white/5 mx-3" />
 
-        {/* User */}
-        <div style={{ padding: 16, display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{
-            width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
-            background: "linear-gradient(135deg,#7C3AED,#A855F7)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 13, fontWeight: 800, color: "white",
-            boxShadow: "0 0 10px rgba(124,58,237,0.4)",
-            overflow: "hidden",
-          }}>
-            {session?.user?.image
-              ? <img src={session.user.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              : initials}
+        {/* User Section */}
+        <div className="p-4 flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-full flex-shrink-0 bg-gradient-to-br from-violet-600 to-purple-500 flex items-center justify-center text-xs font-extrabold text-white shadow-md shadow-violet-500/40 overflow-hidden">
+            {session?.user?.image ? (
+              <img
+                src={session.user.image}
+                alt=""
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              initials
+            )}
           </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-slate-200 truncate">
               {session?.user?.name || "User"}
             </p>
-            <p style={{ fontSize: 11, color: "#475569", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            <p className="text-[11px] text-slate-500 truncate">
               {session?.user?.email}
             </p>
           </div>
+
           <button
             onClick={() => signOut({ callbackUrl: "/" })}
             title="Sign out"
-            style={{
-              background: "none", border: "none", cursor: "pointer",
-              color: "#475569", padding: 6, borderRadius: 6,
-              transition: "color 0.2s, background 0.2s",
-              flexShrink: 0,
-            }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLElement).style.color = "#EF4444";
-              (e.currentTarget as HTMLElement).style.background = "rgba(239,68,68,0.1)";
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLElement).style.color = "#475569";
-              (e.currentTarget as HTMLElement).style.background = "none";
-            }}
+            className="p-1.5 rounded-md text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
           >
             <LogOut size={16} />
           </button>
         </div>
       </aside>
 
-      {/* Mobile toggle button */}
+      {/* Mobile Menu Button */}
       <button
         onClick={toggleSidebar}
-        className="mobile-toggle"
-        style={{
-          position: "fixed", left: 16, top: 14, zIndex: 30,
-          width: 36, height: 36, borderRadius: 9,
-          background: "rgba(124,58,237,0.15)",
-          border: "1px solid rgba(124,58,237,0.3)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          cursor: "pointer", color: "#A855F7",
-        }}
+        className="lg:hidden fixed left-4 top-3.5 z-30 w-9 h-9 rounded-lg bg-violet-600/15 border border-violet-500/30 flex items-center justify-center text-purple-400"
       >
         <Menu size={18} />
       </button>
