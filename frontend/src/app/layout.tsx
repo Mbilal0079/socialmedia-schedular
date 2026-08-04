@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Providers } from "@/components/providers";
 import "./landing.css";
+import { Providers } from "@/components/providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,8 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PostPilot - Social Media Scheduler",
-  description: "Schedule and manage your social media posts across multiple platforms",
+  title: "PostPilot — Schedule Posts to Every Platform at Once",
+  description:
+    "Write once. PostPilot publishes to Twitter, LinkedIn, Facebook, and Instagram automatically at exactly the time you choose. Powered by BullMQ. Free to start.",
 };
 
 export default function RootLayout({
@@ -25,9 +26,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        style={{ background: "#050816" }}
       >
         <Providers>{children}</Providers>
       </body>
