@@ -10,11 +10,11 @@ import {
 import { useUIStore } from "@/store/ui-store";
 
 const NAV = [
-  { href: "/dashboard",            label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dashboard/posts",      label: "Posts",     icon: PenSquare       },
-  { href: "/dashboard/calendar",   label: "Calendar",  icon: Calendar        },
-  { href: "/dashboard/analytics",  label: "Analytics", icon: BarChart3       },
-  { href: "/dashboard/settings",   label: "Settings",  icon: Settings        },
+  { href: "/dashboard",           label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard/posts",     label: "Posts",     icon: PenSquare       },
+  { href: "/dashboard/calendar",  label: "Calendar",  icon: Calendar        },
+  { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3       },
+  { href: "/dashboard/settings",  label: "Settings",  icon: Settings        },
 ];
 
 export function AppSidebar() {
@@ -25,6 +25,57 @@ export function AppSidebar() {
 
   return (
     <>
+      <style>{`
+        .pp-sidebar {
+          position: fixed;
+          left: 0; top: 0;
+          z-index: 50;
+          height: 100%;
+          width: 240px;
+          display: flex;
+          flex-direction: column;
+          background: #0B1023;
+          border-right: 1px solid rgba(255,255,255,0.06);
+          transform: translateX(-100%);
+          transition: transform 0.3s ease;
+          font-family: 'Inter',-apple-system,sans-serif;
+        }
+        @media (min-width: 1024px) {
+          .pp-sidebar { transform: translateX(0) !important; }
+          .pp-mobile-only { display: none !important; }
+        }
+        .pp-sidebar.open { transform: translateX(0); }
+        .pp-nav-link {
+          display: flex; align-items: center; gap: 12px;
+          padding: 10px 12px; border-radius: 10px;
+          text-decoration: none; font-size: 14px; font-weight: 500;
+          transition: all 0.2s ease;
+          color: #64748B;
+          border: 1px solid transparent;
+        }
+        .pp-nav-link:hover { background: rgba(255,255,255,0.04); color: #94A3B8; }
+        .pp-nav-link.active {
+          background: linear-gradient(135deg,rgba(124,58,237,0.25),rgba(168,85,247,0.15));
+          color: #C4B5FD;
+          border-color: rgba(124,58,237,0.3);
+          box-shadow: 0 2px 8px rgba(124,58,237,0.15);
+        }
+        .pp-signout {
+          background: none; border: none; cursor: pointer;
+          color: #475569; padding: 6px; border-radius: 6px;
+          transition: color 0.2s, background 0.2s; flex-shrink: 0;
+        }
+        .pp-signout:hover { color: #EF4444; background: rgba(239,68,68,0.1); }
+        .pp-toggle {
+          position: fixed; left: 16px; top: 14px; z-index: 30;
+          width: 36px; height: 36px; border-radius: 9px;
+          background: rgba(124,58,237,0.15);
+          border: 1px solid rgba(124,58,237,0.3);
+          display: flex; align-items: center; justify-content: center;
+          cursor: pointer; color: #A855F7;
+        }
+      `}</style>
+
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
@@ -34,33 +85,17 @@ export function AppSidebar() {
             background: "rgba(0,0,0,0.6)",
             backdropFilter: "blur(4px)",
           }}
+          className="pp-mobile-only"
         />
       )}
 
       {/* Sidebar */}
-      <aside style={{
-        position: "fixed", left: 0, top: 0, zIndex: 50,
-        height: "100%", width: 240,
-        display: "flex", flexDirection: "column",
-        background: "#0B1023",
-        borderRight: "1px solid rgba(255,255,255,0.06)",
-        transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
-        transition: "transform 0.3s ease",
-        fontFamily: "'Inter',-apple-system,sans-serif",
-      }}
-      className="lg-sidebar"
-      >
-        <style>{`
-          @media(min-width:1024px){
-            .lg-sidebar{ transform: translateX(0) !important; }
-            .mobile-toggle{ display: none !important; }
-          }
-        `}</style>
-
+      <aside className={`pp-sidebar ${sidebarOpen ? "open" : ""}`}>
         {/* Logo */}
         <div style={{
-          height: 64, display: "flex", alignItems: "center",
-          justifyContent: "space-between", padding: "0 20px",
+          height: 64,
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "0 20px",
           borderBottom: "1px solid rgba(255,255,255,0.06)",
         }}>
           <Link href="/dashboard" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
@@ -76,8 +111,8 @@ export function AppSidebar() {
           </Link>
           <button
             onClick={toggleSidebar}
+            className="pp-mobile-only"
             style={{ background: "none", border: "none", cursor: "pointer", color: "#64748B", padding: 4 }}
-            className="mobile-toggle"
           >
             <X size={18} />
           </button>
@@ -86,23 +121,15 @@ export function AppSidebar() {
         {/* Nav */}
         <nav style={{ flex: 1, padding: "16px 12px", display: "flex", flexDirection: "column", gap: 4 }}>
           {NAV.map(item => {
-            const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
+            const active = pathname === item.href ||
+              (item.href !== "/dashboard" && pathname.startsWith(item.href));
             const Icon = item.icon;
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => { if (sidebarOpen) toggleSidebar(); }}
-                style={{
-                  display: "flex", alignItems: "center", gap: 12,
-                  padding: "10px 12px", borderRadius: 10,
-                  textDecoration: "none", fontSize: 14, fontWeight: 500,
-                  transition: "all 0.2s ease",
-                  background: active ? "linear-gradient(135deg,rgba(124,58,237,0.25),rgba(168,85,247,0.15))" : "transparent",
-                  color: active ? "#C4B5FD" : "#64748B",
-                  border: active ? "1px solid rgba(124,58,237,0.3)" : "1px solid transparent",
-                  boxShadow: active ? "0 2px 8px rgba(124,58,237,0.15)" : "none",
-                }}
+                className={`pp-nav-link ${active ? "active" : ""}`}
               >
                 <Icon size={18} />
                 {item.label}
@@ -139,30 +166,15 @@ export function AppSidebar() {
           <button
             onClick={() => signOut({ callbackUrl: "/" })}
             title="Sign out"
-            style={{
-              background: "none", border: "none", cursor: "pointer",
-              color: "#475569", padding: 6, borderRadius: 6,
-              flexShrink: 0,
-            }}
+            className="pp-signout"
           >
             <LogOut size={16} />
           </button>
         </div>
       </aside>
 
-      {/* Mobile toggle button */}
-      <button
-        onClick={toggleSidebar}
-        className="mobile-toggle"
-        style={{
-          position: "fixed", left: 16, top: 14, zIndex: 30,
-          width: 36, height: 36, borderRadius: 9,
-          background: "rgba(124,58,237,0.15)",
-          border: "1px solid rgba(124,58,237,0.3)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          cursor: "pointer", color: "#A855F7",
-        }}
-      >
+      {/* Mobile hamburger */}
+      <button onClick={toggleSidebar} className="pp-toggle pp-mobile-only">
         <Menu size={18} />
       </button>
     </>

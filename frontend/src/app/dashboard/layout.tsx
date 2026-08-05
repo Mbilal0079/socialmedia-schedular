@@ -11,17 +11,26 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const session = await getServerSession(authOptions);
-
   if (!session) {
     redirect("/auth/signin");
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div style={{ minHeight: "100vh", background: "#050816" }}>
       <AppSidebar />
-      <div className="lg:pl-64">
+      {/* Main content — offset by sidebar width on desktop */}
+      <div style={{ marginLeft: 0 }} className="dashboard-main">
+        <style>{`
+          @media (min-width: 1024px) {
+            .dashboard-main {
+              margin-left: 240px;
+            }
+          }
+        `}</style>
         <TopBar />
-        <main className="p-6">{children}</main>
+        <main style={{ padding: "24px" }}>
+          {children}
+        </main>
       </div>
       <CreatePostForm />
     </div>
