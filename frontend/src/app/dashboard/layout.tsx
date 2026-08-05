@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+﻿import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { AppSidebar } from "@/components/layout/app-sidebar";
@@ -16,17 +16,9 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#050816" }}>
+    <div style={{ minHeight: "100vh", background: "#050816", display: "flex" }}>
       <AppSidebar />
-      {/* Main content — offset by sidebar width on desktop */}
-      <div style={{ marginLeft: 0 }} className="dashboard-main">
-        <style>{`
-          @media (min-width: 1024px) {
-            .dashboard-main {
-              margin-left: 240px;
-            }
-          }
-        `}</style>
+      <div style={{ flex: 1, minWidth: 0, marginLeft: 240 }}>
         <TopBar />
         <main style={{ padding: "24px" }}>
           {children}
